@@ -215,7 +215,7 @@ function handleTelegramUpdate() {
                 $amount = $matches[2];
                 $pdo->prepare("UPDATE users SET balance = balance + ? WHERE telegram_id = ?")->execute([$amount, $u_id]);
                 sendMessage(ADMIN_ID, "✅ User $u_id balansiga $amount qo'shildi/ayrildi.");
-                sendMessage($u_id, "💰 Sizning hisobingiz admin tomonidan o'zgartirildi. O'zgarish: $amount UZS");
+                sendMessage($u_id, "💰 Hisobga $amount UZS qo'shildi/Ayrildi.");
             }
 
             // Bloklash (Blok: ID Sabab) - Masalan: Blok: 12345 Qoida buzilishi
