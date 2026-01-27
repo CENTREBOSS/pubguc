@@ -147,7 +147,7 @@ function handleTelegramUpdate() {
                         ['text' => "PUBG UC Do'koni 🛒", 'web_app' => ['url' => WEBAPP_URL]]
                     ],
                     [
-                        ['text' => "Admin Aloqa 👨💻", 'url' => 'https://t.me/SultanovSardorbek_is_Shido']
+                        ['text' => "Admin Aloqa 👨💻", 'url' => 'https://t.me/SultanovSardorbekSheraliyevich']
                     ]
                 ]
             ];
