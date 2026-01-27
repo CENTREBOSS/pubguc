@@ -135,10 +135,35 @@ function handleTelegramUpdate() {
         $first_name = $update['message']['from']['first_name'] ?? 'User';
         $username = $update['message']['from']['username'] ?? '';
 
+       // ---------------- YANGI KOD BOSHLANDI ----------------
+        
         // Userni bazaga saqlash
         $stmt = $pdo->prepare("INSERT OR IGNORE INTO users (telegram_id, first_name, username) VALUES (?, ?, ?)");
         $stmt->execute([$chat_id, $first_name, $username]);
 
+        // TEKSHIRISH: Agar bazaga yangi qator qo'shilgan bo'lsa (rowCount > 0), demak bu yangi user
+        if ($stmt->rowCount() > 0) {
+            
+            // Qo'shimcha: Jami userlar sonini hisoblash (statistikaga qiziq bo'lsa)
+            $count_stmt = $pdo->query("SELECT COUNT(*) FROM users");
+            $total_users = $count_stmt->fetchColumn();
+
+            // Adminga boradigan xabar matni
+            $admin_msg = "👋 <b>Yangi foydalanuvchi ro'yxatdan o'tdi!</b>\n\n";
+            $admin_msg .= "👤 <b>Ismi:</b> <a href='tg://user?id=$chat_id'>$first_name</a>\n"; // Ismiga bossa lichkasiga o'tadi
+            $admin_msg .= "🆔 <b>ID:</b> <code>$chat_id</code>\n";
+            
+            if (!empty($username)) {
+                $admin_msg .= "🌐 <b>Username:</b> @$username\n";
+            }
+            
+            $admin_msg .= "\n📊 <i>Jami foydalanuvchilar: $total_users ta</i>";
+
+            // Xabarni adminga yuborish (ADMIN_ID konstantasidan foydalanamiz)
+            sendMessage(ADMIN_ID, $admin_msg);
+        }
+        
+        // ---------------- YANGI KOD TUGADI ----------------
         if ($text === '/start') {
             // Web App tugmasi
             $keyboard = [
