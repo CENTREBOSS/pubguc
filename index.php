@@ -40,12 +40,14 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // Jadvallarni yaratish (agar mavjud bo'lmasa)
-    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+   $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
         telegram_id TEXT UNIQUE,
         first_name TEXT,
         username TEXT,
         balance REAL DEFAULT 0,
+        is_blocked INTEGER DEFAULT 0, -- 0-aktiv, 1-bloklangan
+        block_reason TEXT,
         joined_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
@@ -135,6 +137,16 @@ function handleTelegramUpdate() {
         $first_name = $update['message']['from']['first_name'] ?? 'User';
         $username = $update['message']['from']['username'] ?? '';
 
+        // User bloklanganini tekshirish
+    $check = $pdo->prepare("SELECT is_blocked, block_reason FROM users WHERE telegram_id = ?");
+    $check->execute([$chat_id]);
+    $user_status = $check->fetch();
+
+    if ($user_status && $user_status['is_blocked'] == 1) {
+        sendMessage($chat_id, "❌ Siz botdan chetlatilgansiz!\n🛑 Sabab: " . $user_status['block_reason']);
+        return; // Kod shu yerda to'xtaydi
+    }
+
        // ---------------- YANGI KOD BOSHLANDI ----------------
         
         // Userni bazaga saqlash
@@ -184,6 +196,38 @@ function handleTelegramUpdate() {
 
             sendMessage($chat_id, "Assalomu alaykum, $first_name! \n\nPUBG Mobile UC xizmatiga xush kelibsiz. Quyidagi tugma orqali do'konga kiring:", $keyboard);
         }
+        // --- ADMIN PANEL BOSHLANDI ---
+        if ($chat_id == ADMIN_ID) {
+            
+            // Xabar yuborish (Xabar: matn)
+            if (strpos($text, "Xabar: ") === 0) {
+                $msg = str_replace("Xabar: ", "", $text);
+                $users = $pdo->query("SELECT telegram_id FROM users")->fetchAll(PDO::FETCH_COLUMN);
+                foreach ($users as $u_id) {
+                    sendMessage($u_id, $msg);
+                }
+                sendMessage(ADMIN_ID, "✅ Xabar barcha foydalanuvchilarga yuborildi!");
+            }
+
+            // Balansni o'zgartirish (Balans: ID Summa) - Masalan: Balans: 12345 5000
+            if (preg_match("/^Balans: (\d+) (-?\d+)/", $text, $matches)) {
+                $u_id = $matches[1];
+                $amount = $matches[2];
+                $pdo->prepare("UPDATE users SET balance = balance + ? WHERE telegram_id = ?")->execute([$amount, $u_id]);
+                sendMessage(ADMIN_ID, "✅ User $u_id balansiga $amount qo'shildi/ayrildi.");
+                sendMessage($u_id, "💰 Sizning hisobingiz admin tomonidan o'zgartirildi. O'zgarish: $amount UZS");
+            }
+
+            // Bloklash (Blok: ID Sabab) - Masalan: Blok: 12345 Qoida buzilishi
+            if (preg_match("/^Blok: (\d+) (.+)/", $text, $matches)) {
+                $u_id = $matches[1];
+                $reason = $matches[2];
+                $pdo->prepare("UPDATE users SET is_blocked = 1, block_reason = ? WHERE telegram_id = ?")->execute([$reason, $u_id]);
+                sendMessage(ADMIN_ID, "🚫 User $u_id bloklandi.");
+                sendMessage($u_id, "⚠️ Siz botdan chetlatildingiz!\nSabab: $reason");
+            }
+        }
+        // --- ADMIN PANEL TUGADI ---
     }
 
     // Callback Query (Tugmalar bosilganda)
