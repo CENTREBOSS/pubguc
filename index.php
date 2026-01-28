@@ -408,7 +408,7 @@ function changeOrderStatus($order_id, $status, $admin_chat_id, $message_id) {
         $msg_user = "❌ Buyurtmangiz (#$order_id) bekor qilindi va pulingiz qaytarildi.";
         $msg_admin = "❌ Buyurtma #$order_id bekor qilindi va pul qaytarildi.";
     } elseif ($status == 'completed') {
-        $msg_user = "✅ Buyurtmangiz (#$order_id) bajarildi! UC hisobingizga tushdi.";
+        $msg_user = "✅ Buyurtmangiz (#$order_id) bajarildi!";
         $msg_admin = "✅ Buyurtma #$order_id bajarildi deb belgilandi.";
     } elseif ($status == 'processing') {
         $msg_user = "🔄 Buyurtmangiz (#$order_id) ijro etilmoqda...";
