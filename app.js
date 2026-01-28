@@ -19,7 +19,8 @@ const products = [
     { id: 4, uc: 1800, price: 287000, label: "1500+300 UC" },
     { id: 5, uc: 3850, price: 580000, label: "3000+850 UC" },
     { id: 6, uc: 8100, price: 1150000, label: "6000+2100 UC" },
-    { id: 7, uc: 100, price: 3500, label: "Uy Uchun Ovoz +200" }
+    { id: 7, uc: 200uy, price: 3500, label: "Uy Uchun Ovoz +200" },
+    { id: 8, uc: 200pp, price: 400, label: "Akkountga PP +200" }
 ];
 
 // State
@@ -362,6 +363,7 @@ async function requestTopup() {
     }
 
 }
+
 
 
 
