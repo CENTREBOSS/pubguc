@@ -215,7 +215,7 @@ function handleTelegramUpdate() {
                 $amount = $matches[2];
                 $pdo->prepare("UPDATE users SET balance = balance + ? WHERE telegram_id = ?")->execute([$amount, $u_id]);
                 sendMessage(ADMIN_ID, "✅ User $u_id balansiga $amount qo'shildi/ayrildi.");
-                sendMessage($u_id, "💰 Hisobga $amount UZS qo'shildi/Ayrildi.");
+                sendMessage($u_id, "💰 Hisobingizda $amount UZS o'zgarish bo'ldi");
             }
 
             // Bloklash (Blok: ID Sabab) - Masalan: Blok: 12345 Qoida buzilishi
@@ -367,7 +367,7 @@ function handleBuyUC($data) {
     $order_id = $pdo->lastInsertId();
 
     // Userga xabar
-    sendMessage($user_id, "⏳ Buyurtma qabul qilindi!\n🆔 PUBG ID: $pubg_id\n💎 UC: $uc_amount\nHolat: Kutilmoqda...");
+    sendMessage($user_id, "⏳ Buyurtma qabul qilindi!\n🆔 PUBG ID: $pubg_id\n💎 UC/PP: $uc_amount\nHolat: Kutilmoqda...");
 
     // Adminga xabar
     $msg = "🛒 <b>Yangi UC Buyurtmasi!</b>\n\n";
