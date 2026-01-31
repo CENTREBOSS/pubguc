@@ -1,16 +1,15 @@
-// app.js
+// app.js - To'liq va tozalangan versiya
 
 // 1. TELEGRAM WEBAPP INIT
 const tg = window.Telegram.WebApp;
-tg.expand(); // To'liq ekran qilish
+tg.expand();
 
-// Rang sxemasini avtomatik sozlash (Light/Dark)
+// Rang sxemasini avtomatik sozlash
 document.documentElement.style.setProperty('--tg-theme-bg', tg.themeParams.bg_color);
 
 // 2. CONFIG
-// MUHIM: Bu yerga Renderdagi URLingizni yozing (oxirida / yo'q)
-const API_BASE_URL = window.location.origin; // Agar index.php bilan bir joyda tursa
-const BOT_USERNAME = "TurboHamyonBot"; // O'Z BOTINGIZ USERNAME SINI YOZING (@ siz)
+const API_BASE_URL = window.location.origin;
+const BOT_USERNAME = "TurboHamyonBot"; // Username @ siz bo'lishi kerak
 
 const products = [
     { id: 1, category: "PUBG", price: 12000, fields: ["player_id"], label: "60 UC" },
@@ -21,86 +20,83 @@ const products = [
 ];
 
 // State
-let cart = [];
 let userBalance = 0;
 let userTelegramId = null;
+let currentProduct = null;
+let selectedFileBase64 = null;
 
-// 3. INTRO ANIMATION LOGIC
+// 3. INTRO & INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
     createExplosionParticles();
     
-    // 2 soniyadan keyin ilovani ochish
     setTimeout(() => {
-        document.getElementById('intro-loader').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
+        const intro = document.getElementById('intro-loader');
+        const app = document.getElementById('app');
+        if (intro) intro.style.display = 'none';
+        if (app) app.style.display = 'block';
         initApp();
     }, 2200);
 });
 
-function createExplosionParticles() {
-    const container = document.querySelector('.particles');
-    for (let i = 0; i < 30; i++) {
-        const p = document.createElement('div');
-        p.classList.add('particle');
-        container.appendChild(p);
-        
-        // Tasodifiy yo'nalish
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 100 + Math.random() * 100;
-        const x = Math.cos(angle) * dist + 'px';
-        const y = Math.sin(angle) * dist + 'px';
-        
-        p.style.setProperty('--x', x);
-        p.style.setProperty('--y', y);
-        
-        // Animatsiyani kechiktirish (sharcha kelganidan keyin)
-        setTimeout(() => {
-            p.classList.add('active');
-        }, 1500);
-    }
-}
-
-// 4. APP INITIALIZATION
 function initApp() {
-    // User ma'lumotlarini olish
     const user = tg.initDataUnsafe.user;
     
     if (user) {
         userTelegramId = user.id;
-        document.getElementById('user-name').innerText = user.first_name;
-        document.getElementById('user-username').innerText = user.username ? '@' + user.username : 'Username yo\'q';
-        document.getElementById('user-id').innerText = user.id;
-        if(user.photo_url) {
-            document.getElementById('user-avatar').src = user.photo_url;
-        }
+        const nameEl = document.getElementById('user-name');
+        const usernameEl = document.getElementById('user-username');
+        const idEl = document.getElementById('user-id');
+        const avatarEl = document.getElementById('user-avatar');
+
+        if (nameEl) nameEl.innerText = user.first_name;
+        if (usernameEl) usernameEl.innerText = user.username ? '@' + user.username : 'Username yo\'q';
+        if (idEl) idEl.innerText = user.id;
+        if (avatarEl && user.photo_url) avatarEl.src = user.photo_url;
         
-        // Balansni Backenddan olish
         fetchBalance();
     } else {
-        // Test rejimi (Brauzerda ochilganda)
-        userTelegramId = "123456789"; // Fake ID
-        document.getElementById('user-name').innerText = "Test User";
+        userTelegramId = "123456789"; // Test uchun
+        console.log("WebApp Telegram ichida ochilmadi");
     }
 
-// Referal linkni generatsiya qilish
+    // Referal link
     if (userTelegramId) {
         const refLink = `https://t.me/${BOT_USERNAME}?start=${userTelegramId}`;
         const inputEl = document.getElementById('my-ref-link');
-        if(inputEl) inputEl.value = refLink;
+        if (inputEl) inputEl.value = refLink;
     }
     
-    renderShop(); // Do'konni yuklash
-    // ...
-
+    renderShop();
 }
-let currentProduct = null;
 
-// 1. Modalni ochish va kerakli inputlarni yasash
+// 4. SHOP & MODAL LOGIC
+function renderShop() {
+    const container = document.getElementById('products-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    products.forEach(prod => {
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+            <div class="uc-icon"><i class="fa-solid fa-gem"></i></div>
+            <h3>${prod.label}</h3>
+            <span class="price-tag">${formatMoney(prod.price)} UZS</span>
+            <button class="buy-btn" onclick="openOrderModal(${prod.id})">
+                <i class="fa-solid fa-cart-plus"></i> Sotib olish
+            </button>
+        `;
+        container.appendChild(div);
+    });
+}
+
 function openOrderModal(productId) {
     currentProduct = products.find(p => p.id === productId);
     const container = document.getElementById('dynamic-fields-container');
     const title = document.getElementById('modal-title');
     
+    if (!container || !currentProduct) return;
+
     container.innerHTML = ''; 
     title.innerText = currentProduct.category + " uchun ma'lumotlar";
 
@@ -110,9 +106,10 @@ function openOrderModal(productId) {
         input.id = `input-${field}`;
         
         if(field === "player_id") input.placeholder = "Player ID kiriting";
-        if(field === "server_id") { input.placeholder = "Server ID kiriting"; input.type = "number"; }
-        if(field === "account_name") input.placeholder = "Login (Akkaunt nomi)";
-        if(field === "email") { input.placeholder = "Email manzilingiz"; input.type = "email"; }
+        else if(field === "server_id") { input.placeholder = "Server ID kiriting"; input.type = "number"; }
+        else if(field === "account_name") input.placeholder = "Login (Akkaunt nomi)";
+        else if(field === "email") { input.placeholder = "Email manzilingiz"; input.type = "email"; }
+        else input.placeholder = field.replace('_', ' ').toUpperCase();
         
         container.appendChild(input);
     });
@@ -120,13 +117,11 @@ function openOrderModal(productId) {
     document.getElementById('pubg-id-modal').style.display = 'flex';
 }
 
-// 2. Modalni yopish
 function closeModal() {
     document.getElementById('pubg-id-modal').style.display = 'none';
     currentProduct = null;
 }
 
-// 3. Sotib olishni tasdiqlash va serverga yuborish
 async function confirmOrder() {
     if (!currentProduct) return;
     if (userBalance < currentProduct.price) return tg.showAlert("Mablag' yetarli emas!");
@@ -160,206 +155,32 @@ async function confirmOrder() {
         });
         const result = await res.json();
         if (result.success) {
-            tg.showAlert("Buyurtma qabul qilindi!");
+            tg.showPopup({
+                title: "Muvaffaqiyatli!",
+                message: "Buyurtmangiz qabul qilindi!",
+                buttons: [{type: "ok"}]
+            });
             closeModal();
             fetchBalance(); 
         } else {
-            tg.showAlert(result.message);
+            tg.showAlert(result.message || "Xatolik yuz berdi");
         }
     } catch (e) {
-        tg.showAlert("Xatolik yuz berdi!");
+        tg.showAlert("Server bilan aloqa uzildi!");
     } finally {
         btn.disabled = false;
         btn.innerText = "Sotib olish";
     }
 }
 
-// 5. FETCH DATA
-async function fetchBalance() {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/user?id=${userTelegramId}`);
-        const data = await res.json();
-        if (data && data.balance !== undefined) {
-            userBalance = data.balance;
-            document.getElementById('balance-display').innerText = formatMoney(userBalance) + ' UZS';
-        }
-    } catch (e) {
-        console.error("Balans xatosi:", e);
-    }
-}
-
-function renderShop() {
-    const container = document.getElementById('products-container');
-    container.innerHTML = '';
-    
-    products.forEach(prod => {
-        const div = document.createElement('div');
-        div.className = 'product-card';
-        div.innerHTML = `
-            <div class="uc-icon"><i class="fa-solid fa-gem"></i></div>
-            <h3>${prod.label}</h3>
-            <span class="price-tag">${formatMoney(prod.price)} UZS</span>
-            <button class="buy-btn" onclick="openOrderModal(${prod.id})">
-                <i class="fa-solid fa-cart-plus"></i> Sotib olish
-            </button>
-        `;
-        container.appendChild(div);
-    });
-}
-
-    
-    // Kichik animatsiya (tugmaga)
-    tg.HapticFeedback.notificationOccurred('success'); // Telefon vibratsiyasi
-    showToast("Savatga qo'shildi!");
-}
-
-function updateCartUI() {
-    const badge = document.getElementById('cart-badge');
-    const container = document.getElementById('cart-items');
-    const totalEl = document.getElementById('cart-total');
-    
-    // Badge update
-    if (cart.length > 0) {
-        badge.classList.remove('hidden');
-        badge.innerText = cart.length;
-    } else {
-        badge.classList.add('hidden');
-    }
-
-    // Render items
-    container.innerHTML = '';
-    let total = 0;
-
-    if(cart.length === 0) {
-        container.innerHTML = '<div class="empty-state">Savat bo\'sh</div>';
-    } else {
-        cart.forEach((item, index) => {
-            total += item.price;
-            const div = document.createElement('div');
-            div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
-            div.innerHTML = `
-                <span>${item.label}</span>
-                <span>${formatMoney(item.price)}</span>
-                <i class="fa-solid fa-trash" style="color:red; cursor:pointer;" onclick="removeFromCart(${index})"></i>
-            `;
-            container.appendChild(div);
-        });
-    }
-    
-    totalEl.innerText = formatMoney(total);
-}
-
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    updateCartUI();
-}
-
-function clearCart() {
-    cart = [];
-    updateCartUI();
-}
-
-// 8. NAVIGATION
-function switchTab(tabName) {
-    // Remove active class from navs
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    // Hide all sections
-    document.querySelectorAll('section').forEach(el => {
-        el.classList.remove('active-section');
-        el.classList.add('hidden-section');
-    });
-
-    // Activate current
-    document.querySelector(`.nav-item[onclick="switchTab('${tabName}')"]`).classList.add('active');
-    
-    const section = document.getElementById(`section-${tabName}`);
-    section.classList.remove('hidden-section');
-    section.classList.add('active-section');
-
-    // Scroll to top
-    window.scrollTo(0, 0);
-}
-
-
-   
-    // Buttonni bloklash
-    const btn = document.querySelector('#pubg-id-modal button');
-    btn.disabled = true;
-    btn.innerText = "Bajarilmoqda...";
-
-    // Har bir tovar uchun alohida so'rov (yoki hammasini bitta qilsa bo'ladi)
-    // Bu yerda soddalik uchun loop qilamiz
-    for (const item of cart) {
-        await fetch(`${API_BASE_URL}/api/buy-uc`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                telegram_id: userTelegramId,
-                uc_amount: item.uc,
-                price: item.price,
-                pubg_id: pubgId
-            })
-        });
-    }
-
-    // Reset
-    cart = [];
-    updateCartUI();
-    closePubgModal();
-    btn.disabled = false;
-    btn.innerText = "To'lash";
-    
-    fetchBalance(); // Balansni yangilash
-    
-    tg.showPopup({
-        title: "Muvaffaqiyatli!",
-        message: "Buyurtmangiz qabul qilindi. 1 Daqiqa kuting. Buyurtma yo'lda ",
-        buttons: [{type: "ok"}]
-    });
-    
-    switchTab('profile'); // Profilga o'tib tarixni ko'rish (kelajakda)
-}
-
-// 10. TOPUP (Hisob to'ldirish)
+// 5. TOPUP LOGIC
 function openTopupModal() {
     document.getElementById('topup-modal').style.display = 'flex';
 }
+
 function closeTopupModal() {
     document.getElementById('topup-modal').style.display = 'none';
 }
-
-async function requestTopup() {
-    const amount = document.getElementById('topup-amount').value;
-    if (!amount || amount < 1000) return showToast("Minimal summa 1000 UZS");
-
-    await fetch(`${API_BASE_URL}/api/request-topup`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            telegram_id: userTelegramId,
-            amount: amount
-        })
-    });
-
-    closeTopupModal();
-    tg.showPopup({
-        title: "So'rov yuborildi",
-        message: "Tasdiqlanishini kuting.",
-        buttons: [{type: "ok"}]
-    });
-}
-
-// UTILS
-function formatMoney(amount) {
-    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
-
-function showToast(msg) {
-    // Oddiy alert o'rniga chiroyli toast qilish mumkin
-    // Hozircha telegram popup ishlatamiz
-    tg.showAlert(msg);
-}
-let selectedFileBase64 = null;
 
 function previewFile() {
     const file = document.getElementById('receipt-upload').files[0];
@@ -369,16 +190,10 @@ function previewFile() {
         hint.innerText = "Tanlandi: " + file.name;
         const reader = new FileReader();
         reader.onload = function(e) {
-            selectedFileBase64 = e.target.result; // Base64 formatida saqlaydi
+            selectedFileBase64 = e.target.result;
         };
         reader.readAsDataURL(file);
     }
-}
-
-function copyCard(number) {
-    navigator.clipboard.writeText(number);
-    tg.showScanQrPopup({ text: "Karta raqami nusxalandi!" }); // Kichik vizual effekt
-    setTimeout(() => tg.closeScanQrPopup(), 1000);
 }
 
 async function requestTopup() {
@@ -398,7 +213,7 @@ async function requestTopup() {
             body: JSON.stringify({
                 telegram_id: userTelegramId,
                 amount: amount,
-                image: selectedFileBase64 // Rasmni yuboramiz
+                image: selectedFileBase64
             })
         });
 
@@ -406,47 +221,82 @@ async function requestTopup() {
             closeTopupModal();
             tg.showPopup({
                 title: "Yuborildi!",
-                message: "Tasdiqlangach hisobingiz to'ldiriladi. 1-5 daqiqa kuting va sahifani yangilang yoki qayta oching.",
+                message: "Tasdiqlangach hisobingiz to'ldiriladi (1-5 daqiqa).",
                 buttons: [{type: "ok"}]
             });
+        } else {
+            tg.showAlert("Xatolik: So'rov yuborilmadi");
         }
     } catch (e) {
-        tg.showAlert("Xatolik yuz berdi!");
+        tg.showAlert("Server xatosi!");
     } finally {
         btn.disabled = false;
         btn.innerText = "Tasdiqlash uchun yuborish";
     }
+}
 
+// 6. NAVIGATION & UTILS
+function switchTab(tabName) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('section').forEach(el => {
+        el.classList.remove('active-section');
+        el.classList.add('hidden-section');
+    });
+
+    const activeNav = document.querySelector(`.nav-item[onclick="switchTab('${tabName}')"]`);
+    if (activeNav) activeNav.classList.add('active');
+    
+    const section = document.getElementById(`section-${tabName}`);
+    if (section) {
+        section.classList.remove('hidden-section');
+        section.classList.add('active-section');
+    }
+    window.scrollTo(0, 0);
+}
+
+async function fetchBalance() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/user?id=${userTelegramId}`);
+        const data = await res.json();
+        if (data && data.balance !== undefined) {
+            userBalance = data.balance;
+            const balEl = document.getElementById('balance-display');
+            if (balEl) balEl.innerText = formatMoney(userBalance) + ' UZS';
+        }
+    } catch (e) {
+        console.error("Balansni yuklashda xatolik");
+    }
+}
+
+function formatMoney(amount) {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+function copyCard(number) {
+    navigator.clipboard.writeText(number);
+    tg.HapticFeedback.notificationOccurred('success');
+    tg.showAlert("Karta raqami nusxalandi!");
 }
 
 function copyReferralLink() {
     const copyText = document.getElementById("my-ref-link");
-    
-    // Matnni tanlash va nusxalash
     copyText.select();
-    copyText.setSelectionRange(0, 99999); // Mobil qurilmalar uchun
-    
     navigator.clipboard.writeText(copyText.value).then(() => {
-        // Muvaffaqiyatli
-        tg.showScanQrPopup({ text: "Havola nusxalandi!" });
-        setTimeout(() => tg.closeScanQrPopup(), 800);
-    }).catch(err => {
-        // Agar xatolik bo'lsa
-        showToast("Nusxalandi!");
+        tg.showAlert("Havola nusxalandi!");
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function createExplosionParticles() {
+    const container = document.querySelector('.particles');
+    if (!container) return;
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.classList.add('particle');
+        container.appendChild(p);
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 100 + Math.random() * 100;
+        p.style.setProperty('--x', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--y', Math.sin(angle) * dist + 'px');
+        setTimeout(() => p.classList.add('active'), 1500);
+    }
+}
