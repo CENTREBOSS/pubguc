@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Store</title>
+    <title>TurboHamyon - Premium Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -13,82 +13,84 @@
     <div id="intro-loader">
         <div class="animation-container">
             <div class="golden-ball"></div>
-            <div class="particles">
-                </div>
+            <div class="particles"></div>
         </div>
-        <h2 class="loading-text">TurboHamyon</h2>
+        <h2 class="loading-text">TURBO HAMYON</h2>
+        <p class="loading-subtext">Xavfsiz va Tezkor Xizmat</p>
     </div>
 
     <div id="app" style="display: none;">
         
-        <header>
-            <div class="user-balance-card">
-                <span>Balans:</span>
-                <h2 id="balance-display">0 UZS</h2>
-                <button class="add-btn" onclick="openTopupModal()">+</button>
+        <header class="main-header">
+            <div class="header-content">
+                <div class="balance-card">
+                    <div class="bal-info">
+                        <span class="bal-label">Mening Balansim</span>
+                        <h2 id="balance-display">0 UZS</h2>
+                    </div>
+                    <button class="add-funds-btn" onclick="openTopupModal()">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
         <main>
             <section id="section-shop" class="active-section">
-                <div class="section-title">
-                    <h3>Paketlar:</h3>
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-fire"></i> Ommabop Paketlar</h3>
                 </div>
                 <div class="products-grid" id="products-container">
                     </div>
             </section>
 
             <section id="section-cart" class="hidden-section">
-                <div class="section-title">
-                    <h3>🛒 Savat</h3>
-                    <button class="clear-cart" onclick="clearCart()"><i class="fa-solid fa-trash"></i> Tozalash</button>
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-cart-shopping"></i> Savatcha</h3>
+                    <button class="text-btn" onclick="clearCart()">Tozalash</button>
                 </div>
-                <div id="cart-items">
-                    <div class="empty-state">Savat bo'sh</div>
-                </div>
-                <div class="cart-footer">
-                    <div class="total-price">Jami: <span id="cart-total">0</span> UZS</div>
-                    <button id="checkout-btn" onclick="checkout()">Sotib Olish</button>
+                <div id="cart-items" class="cart-list">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-box-open"></i>
+                        <p>Hozircha savat bo'sh</p>
+                    </div>
                 </div>
             </section>
 
             <section id="section-profile" class="hidden-section">
-                <div class="profile-card">
-                    <div class="profile-header">
+                <div class="profile-hero">
+                    <div class="avatar-wrapper">
                         <img id="user-avatar" src="https://via.placeholder.com/100" alt="User">
-                        <div class="profile-info">
-                            <h3 id="user-name">Yuklanmoqda...</h3>
-                            <p id="user-username">@username</p>
-                            <span class="user-id-badge">ID: <span id="user-id">---</span></span>
+                        <div class="status-dot"></div>
+                    </div>
+                    <h3 id="user-name">User Name</h3>
+                    <p id="user-username">@username</p>
+                    <div class="user-id-tag">ID: <span id="user-id">---</span></div>
+                </div>
+
+                <div class="menu-list">
+                    <div class="menu-item-card referral-promo">
+                        <div class="menu-content">
+                            <i class="fa-solid fa-gift icon-gold"></i>
+                            <div class="menu-text">
+                                <h4>Do'stlarni taklif qiling</h4>
+                                <p>Har bir do'st uchun +200 UZS</p>
+                            </div>
+                        </div>
+                        <div class="ref-copy-box">
+                            <input type="text" id="my-ref-link" readonly value="Yuklanmoqda...">
+                            <button onclick="copyReferralLink()"><i class="fa-solid fa-copy"></i></button>
                         </div>
                     </div>
-                 <div class="referral-container">
-                <div class="referral-header">
-                    <i class="fa-solid fa-gift"></i>
-                    <span>Do'stlarni taklif qiling</span>
-                </div>
-                <p class="referral-desc">Har bir taklif qilingan do'stingiz uchun <b>200 UZS</b> oling!</p>
-                
-                <div class="ref-link-box">
-                    <input type="text" id="my-ref-link" readonly value="Yuklanmoqda...">
-                    <button class="copy-btn" onclick="copyReferralLink()">
-                        <i class="fa-regular fa-copy"></i>
-                    </button>
-                </div>
-            </div>
-                    <div class="security-note">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <p>Ushbu hisob Telegram orqali tasdiqlangan. Xavfsiz tranzaksiya kafolatlangan.</p>
-                    </div>
-                    
-                    <div class="profile-actions">
-                        <div class="action-item">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    <div class="action-grid">
+                        <div class="action-card" onclick="tg.showAlert('Tez kunda...')">
+                            <i class="fa-solid fa-history"></i>
                             <span>Tarix</span>
                         </div>
-                        <div class="action-item">
+                        <div class="action-card" onclick="window.location.href='https://t.me/SultanovSardorbekSheraliyevich'">
                             <i class="fa-solid fa-headset"></i>
-                            <span>Yordam</span>
+                            <span>Support</span>
                         </div>
                     </div>
                 </div>
@@ -97,71 +99,73 @@
 
         <nav class="bottom-nav">
             <div class="nav-item active" onclick="switchTab('shop')">
-                <i class="fa-solid fa-store"></i>
-                <span>Do'kon</span>
+                <i class="fa-solid fa-house"></i>
+                <span>Asosiy</span>
             </div>
             <div class="nav-item" onclick="switchTab('cart')">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span id="cart-badge" class="badge hidden">0</span>
+                <div class="icon-wrapper">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span id="cart-badge" class="badge">0</span>
+                </div>
                 <span>Savat</span>
             </div>
             <div class="nav-item" onclick="switchTab('profile')">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-user-gear"></i>
                 <span>Profil</span>
             </div>
         </nav>
     </div>
 
     <div id="topup-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeTopupModal()">&times;</span>
-        <h3>Hisobni to'ldirish</h3>
-        
-        <div class="cards-container">
-            <div class="card-item" onclick="copyCard('5614 6868 1732 2558')">
-                <p>💳 Uzcard: <b>5614 **** **** 2558</b> <i class="fa-solid fa-copy"></i></p>
+        <div class="modal-content bottom-sheet">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title">Hisobni to'ldirish</h3>
+            
+            <div class="payment-cards">
+                <div class="p-card" onclick="copyCard('5614686817322558')">
+                    <div class="p-icon uzcard"></div>
+                    <div class="p-info"><span>Uzcard</span><b>5614 **** 2558</b></div>
+                    <i class="fa-solid fa-copy"></i>
+                </div>
+                <div class="p-card" onclick="copyCard('9860356629568946')">
+                    <div class="p-icon humo"></div>
+                    <div class="p-info"><span>Humo</span><b>9860 **** 8946</b></div>
+                    <i class="fa-solid fa-copy"></i>
+                </div>
             </div>
-            <div class="card-item" onclick="copyCard('9860 3566 2956 8946')">
-                <p>💳 Humo: <b>9860 **** **** 8946</b> <i class="fa-solid fa-copy"></i></p>
-            </div>
-            <div class="card-item" onclick="copyCard('4176 5500 2672 5055')">
-                <p>💳 Visa: <b>4176 **** **** 5055</b> <i class="fa-solid fa-copy"></i></p>
+
+            <div class="topup-form">
+                <div class="input-group">
+                    <label>Summani kiriting (UZS):</label>
+                    <input type="number" id="topup-amount" placeholder="Minimal: 1 000">
+                </div>
+                
+                <div class="upload-zone">
+                    <input type="file" id="receipt-upload" accept="image/*" hidden onchange="previewFile()">
+                    <label for="receipt-upload" class="upload-label">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Chek rasmini yuklash</span>
+                    </label>
+                    <div id="file-preview-name" class="file-status">Hali rasm tanlanmadi</div>
+                </div>
+
+                <button id="send-topup-btn" class="submit-btn" onclick="requestTopup()">Yuborish</button>
+                <button class="close-btn" onclick="closeTopupModal()">Yopish</button>
             </div>
         </div>
-
-        <p class="small-hint">Summani So'mda yoki Visaga AQSH Dollarida o'tkazing va chekni yuklang:</p>
-        
-        <input type="number" id="topup-amount" placeholder="Summa (UZS)">
-        
-        <label for="receipt-upload" class="file-label">
-            <i class="fa-solid fa-camera"></i> Chekni tanlash (Rasm)
-        </label>
-        <input type="file" id="receipt-upload" accept="image/*" style="display:none" onchange="previewFile()">
-        
-        <div id="file-preview-name" class="file-hint">Fayl tanlanmagan</div>
-
-        <button id="send-topup-btn" class="primary-btn" onclick="requestTopup()">Tasdiqlash uchun yuborish</button>
     </div>
-</div>
 
-   <div id="pubg-id-modal" class="modal">
-    <div class="modal-content">
-        <h3 id="modal-title">Ma'lumotlarni kiriting</h3>
-        
-        <div id="dynamic-fields-container"></div> 
-
-       <div class="modal-buttons">
-    <button id="confirm-order-btn" onclick="confirmOrder()">Sotib olish</button>
-    <button class="cancel-btn" onclick="closeModal()">Yopish (Bekor qilish)</button>
-</div>
+    <div id="pubg-id-modal" class="modal">
+        <div class="modal-content central">
+            <h3 id="modal-title" class="modal-title">Ma'lumotlar</h3>
+            <div id="dynamic-fields-container" class="fields-list"></div> 
+            <div class="modal-actions">
+                <button id="confirm-order-btn" class="buy-now-btn" onclick="confirmOrder()">Sotib olish</button>
+                <button class="cancel-btn" onclick="closeModal()">Orqaga</button>
+            </div>
+        </div>
     </div>
-</div>
+
     <script src="app.js"></script>
 </body>
-
 </html>
-
-
-
-
-
