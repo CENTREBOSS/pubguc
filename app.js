@@ -108,7 +108,6 @@ async function fetchBalance() {
     }
 }
 
-// 6. RENDER SHOP
 function renderShop() {
     const container = document.getElementById('products-container');
     container.innerHTML = '';
@@ -120,19 +119,14 @@ function renderShop() {
             <div class="uc-icon"><i class="fa-solid fa-gem"></i></div>
             <h3>${prod.label}</h3>
             <span class="price-tag">${formatMoney(prod.price)} UZS</span>
-            <button class="buy-btn" onclick="addToCart(${prod.id})">
-                <i class="fa-solid fa-cart-plus"></i> Savatga
+            <button class="buy-btn" onclick="openOrderModal(${prod.id})">
+                <i class="fa-solid fa-cart-plus"></i> Sotib olish
             </button>
         `;
         container.appendChild(div);
     });
 }
 
-// 7. CART LOGIC
-function addToCart(id) {
-    const product = products.find(p => p.id === id);
-    cart.push(product);
-    updateCartUI();
     
     // Kichik animatsiya (tugmaga)
     tg.HapticFeedback.notificationOccurred('success'); // Telefon vibratsiyasi
@@ -206,33 +200,8 @@ function switchTab(tabName) {
     window.scrollTo(0, 0);
 }
 
-// 9. CHECKOUT & PAYMENT
-function checkout() {
-    if (cart.length === 0) return showToast("Savat bo'sh!");
-    
-    let total = cart.reduce((sum, item) => sum + item.price, 0);
-    
-    if (userBalance < total) {
-        tg.showPopup({
-            title: "Mablag' yetarli emas",
-            message: "Iltimos, hisobingizni to'ldiring.",
-            buttons: [{type: "ok"}]
-        });
-        return;
-    }
 
-    // PUBG ID so'rash
-    document.getElementById('pubg-id-modal').style.display = 'flex';
-}
-
-function closePubgModal() {
-    document.getElementById('pubg-id-modal').style.display = 'none';
-}
-
-async function processPayment() {
-    const pubgId = document.getElementById('pubg-game-id').value;
-    if (!pubgId) return showToast("ID kiritilmadi!");
-
+   
     // Buttonni bloklash
     const btn = document.querySelector('#pubg-id-modal button');
     btn.disabled = true;
@@ -386,6 +355,7 @@ function copyReferralLink() {
         showToast("Nusxalandi!");
     });
 }
+
 
 
 
