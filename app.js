@@ -10,7 +10,7 @@ document.documentElement.style.setProperty('--tg-theme-bg', tg.themeParams.bg_co
 // 2. CONFIG
 // MUHIM: Bu yerga Renderdagi URLingizni yozing (oxirida / yo'q)
 const API_BASE_URL = window.location.origin; // Agar index.php bilan bir joyda tursa
-
+const BOT_USERNAME = "TurboHamyonBot"; // O'Z BOTINGIZ USERNAME SINI YOZING (@ siz)
 
 // UC Paketlari (Backenddan ham olish mumkin, hozircha static)
 const products = [
@@ -88,7 +88,13 @@ function initApp() {
         document.getElementById('user-name').innerText = "Test User";
     }
 
-
+// Referal linkni generatsiya qilish
+    if (userTelegramId) {
+        const refLink = `https://t.me/${BOT_USERNAME}?start=${userTelegramId}`;
+        const inputEl = document.getElementById('my-ref-link');
+        if(inputEl) inputEl.value = refLink;
+    }
+    
     renderShop(); // Do'konni yuklash
     // ...
 
@@ -386,6 +392,7 @@ function copyReferralLink() {
         showToast("Nusxalandi!");
     });
 }
+
 
 
 
