@@ -197,7 +197,7 @@ function handleTelegramUpdate() {
                 $keyboard['inline_keyboard'][] = [['text' => "Admin Panel ⚙️", 'callback_data' => 'admin_panel']];
             }
 
-            sendMessage($chat_id, "$first_name! \n\n Do'konga kiring:", $keyboard);
+            sendMessage($chat_id, "$first_name \n🖥 ASOSIY MENYUDASIZ:", $keyboard);
         }
         // --- ADMIN PANEL BOSHLANDI ---
         if ($chat_id == ADMIN_ID) {
