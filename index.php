@@ -115,10 +115,9 @@ if ($method === 'GET' && strpos($uri, '/api/user') === 0) {
     exit;
 }
 
-// 3. API: UC Sotib olish (Web App dan)
-if ($method === 'POST' && $uri === '/api/buy-uc') {
+if ($method === 'POST' && $uri === '/api/order') {
     $input = json_decode(file_get_contents('php://input'), true);
-    handleBuyUC($input);
+    handleOrder($input);
     exit;
 }
 
@@ -392,14 +391,14 @@ function processTopup($id, $action, $admin_chat_id, $message_id) {
     }
 }
 
-function handleBuyUC($data) {
+function handleOrder($data) {
     global $pdo;
     $user_id = $data['telegram_id'];
-    $uc_amount = $data['uc_amount'];
+    $product_label = $data['label'];
     $price = $data['price'];
-    $pubg_id = $data['pubg_id'];
+    $details = $data['details']; // Bu massiv: ['player_id' => '123', 'server_id' => '456'] bo'lib keladi
 
-    // User balansini tekshirish
+    // 1. Balansni tekshirish
     $stmt = $pdo->prepare("SELECT balance FROM users WHERE telegram_id = ?");
     $stmt->execute([$user_id]);
     $user = $stmt->fetch();
@@ -408,6 +407,50 @@ function handleBuyUC($data) {
         echo json_encode(['success' => false, 'message' => "Mablag' yetarli emas"]);
         return;
     }
+
+    // 2. Balansdan yechish
+    $pdo->prepare("UPDATE users SET balance = balance - ? WHERE telegram_id = ?")->execute([$price, $user_id]);
+
+    // 3. Ma'lumotlarni bazaga saqlash uchun JSONga aylantiramiz
+    $details_json = json_encode($details);
+
+    // 4. Buyurtmani bazaga yozish (pubg_id o'rniga details ishlatamiz)
+    // DIQQAT: Agar orders jadvalingizda pubg_id ustuni bo'lsa, ma'lumotni o'shanga saqlab turamiz
+    $stmt = $pdo->prepare("INSERT INTO orders (user_id, pubg_id, uc_amount, price) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$user_id, $details_json, $product_label, $price]);
+    $order_id = $pdo->lastInsertId();
+
+    // 5. Adminga yuborish uchun ma'lumotlarni chiroyli matn qilish
+    $info_text = "";
+    foreach ($details as $key => $value) {
+        $info_text .= "🔹 " . ucfirst(str_replace('_', ' ', $key)) . ": <code>$value</code>\n";
+    }
+
+    // 6. Userga xabar
+    sendMessage($user_id, "⏳ <b>Buyurtma qabul qilindi!</b>\n📦 Paket: $product_label\n$info_text\nHolat: Kutilmoqda...");
+
+    // 7. Adminga xabar
+    $msg = "🛒 <b>YANGI BUYURTMA #$order_id</b>\n\n";
+    $msg .= "👤 User: <a href='tg://user?id=$user_id'>$user_id</a>\n";
+    $msg .= "📦 Paket: <b>$product_label</b>\n";
+    $msg .= $info_text;
+    $msg .= "\n💰 Narx: " . number_format($price, 0, '.', ' ') . " UZS";
+
+    $keyboard = [
+        'inline_keyboard' => [
+            [
+                ['text' => "⏳ Jarayonda", 'callback_data' => "order_status_{$order_id}_processing"],
+                ['text' => "✅ Bajarildi", 'callback_data' => "order_status_{$order_id}_completed"]
+            ],
+            [
+                ['text' => "❌ Bekor qilish (Pul qaytadi)", 'callback_data' => "order_status_{$order_id}_cancelled"]
+            ]
+        ]
+    ];
+
+    sendMessage(ADMIN_ID, $msg, $keyboard);
+    echo json_encode(['success' => true]);
+}
 
     // Balansdan yechish
     $pdo->prepare("UPDATE users SET balance = balance - ? WHERE telegram_id = ?")->execute([$price, $user_id]);
