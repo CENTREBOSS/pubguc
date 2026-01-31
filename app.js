@@ -255,16 +255,24 @@ function switchTab(tabName) {
 }
 
 async function fetchBalance() {
+    if (!userTelegramId) return;
+    
     try {
+        console.log("Balans so'ralmoqda id:", userTelegramId);
         const res = await fetch(`${API_BASE_URL}/api/user?id=${userTelegramId}`);
         const data = await res.json();
+        
+        console.log("Serverdan kelgan javob:", data);
+        
         if (data && data.balance !== undefined) {
-            userBalance = data.balance;
+            userBalance = parseFloat(data.balance);
             const balEl = document.getElementById('balance-display');
-            if (balEl) balEl.innerText = formatMoney(userBalance) + ' UZS';
+            if (balEl) {
+                balEl.innerText = formatMoney(userBalance) + ' UZS';
+            }
         }
     } catch (e) {
-        console.error("Balansni yuklashda xatolik");
+        console.error("Balansni yuklashda xatolik:", e);
     }
 }
 
@@ -300,3 +308,4 @@ function createExplosionParticles() {
         setTimeout(() => p.classList.add('active'), 1500);
     }
 }
+
