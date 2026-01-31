@@ -12,18 +12,12 @@ document.documentElement.style.setProperty('--tg-theme-bg', tg.themeParams.bg_co
 const API_BASE_URL = window.location.origin; // Agar index.php bilan bir joyda tursa
 const BOT_USERNAME = "TurboHamyonBot"; // O'Z BOTINGIZ USERNAME SINI YOZING (@ siz)
 
-// UC Paketlari (Backenddan ham olish mumkin, hozircha static)
 const products = [
-    { id: 1, uc: 60, price: 11700, label: "60 UC" },
-    { id: 2, uc: 325, price: 57800, label: "300+25 UC" },
-    { id: 3, uc: 660, price: 114200, label: "600+60 UC" },
-    { id: 4, uc: 1800, price: 285000, label: "1500+300 UC" },
-    { id: 5, uc: 3850, price: 569000, label: "3000+850 UC" },
-    { id: 6, uc: 8100, price: 1138000, label: "6000+2100 UC" },
-    { id: 7, uc: 16200, price: 2269500, label: "12000+4200 UC" },
-    { id: 8, uc: 24300, price: 3405000, label: "18000+6300 UC" },
-    { id: 9, uc: 32400, price: 4540000, label: "24000+8400 UC" },
-    { id: 10, uc: 40500, price: 5675000, label: "30000+10500 UC" }
+    { id: 1, category: "PUBG", price: 12000, fields: ["player_id"], label: "60 UC" },
+    { id: 10, category: "MLBB", price: 18000, fields: ["player_id", "server_id"], label: "86 Diamonds" },
+    { id: 20, category: "Free Fire", price: 11000, fields: ["player_id"], label: "100 Diamonds" },
+    { id: 30, category: "Steam", price: 65000, fields: ["account_name"], label: "5 USD Wallet" },
+    { id: 40, category: "Razer Gold", price: 135000, fields: ["email"], label: "10 USD Code" }
 ];
 
 // State
@@ -392,6 +386,7 @@ function copyReferralLink() {
         showToast("Nusxalandi!");
     });
 }
+
 
 
 
