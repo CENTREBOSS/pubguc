@@ -541,5 +541,16 @@ input {
 .copy-btn:active {
     transform: scale(0.9);
 }
+.dynamic-input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #2a2a2a;
+    color: white;
+    font-size: 16px;
+}
+
 
 
