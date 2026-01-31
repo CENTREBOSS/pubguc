@@ -478,4 +478,68 @@ input {
     padding: 10px 0;
     border-bottom: 1px solid #eee;
 }
+/* REFERAL BO'LIMI */
+.referral-container {
+    margin: 20px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid var(--primary-yellow);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
+    color: white;
+}
+
+.referral-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-yellow);
+}
+
+.referral-desc {
+    font-size: 13px;
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.ref-link-box {
+    display: flex;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.ref-link-box input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--primary-yellow);
+    font-family: monospace;
+    font-size: 14px;
+    margin: 0;
+    padding: 8px;
+}
+
+.ref-link-box input:focus {
+    outline: none;
+}
+
+.copy-btn {
+    background: var(--primary-yellow);
+    border: none;
+    width: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: black;
+    transition: transform 0.2s;
+}
+
+.copy-btn:active {
+    transform: scale(0.9);
+}
+
 
