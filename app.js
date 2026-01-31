@@ -93,6 +93,86 @@ function initApp() {
     // ...
 
 }
+let currentProduct = null;
+
+// 1. Modalni ochish va kerakli inputlarni yasash
+function openOrderModal(productId) {
+    currentProduct = products.find(p => p.id === productId);
+    const container = document.getElementById('dynamic-fields-container');
+    const title = document.getElementById('modal-title');
+    
+    container.innerHTML = ''; 
+    title.innerText = currentProduct.category + " uchun ma'lumotlar";
+
+    currentProduct.fields.forEach(field => {
+        const input = document.createElement('input');
+        input.className = "dynamic-input";
+        input.id = `input-${field}`;
+        
+        if(field === "player_id") input.placeholder = "Player ID kiriting";
+        if(field === "server_id") { input.placeholder = "Server ID kiriting"; input.type = "number"; }
+        if(field === "account_name") input.placeholder = "Login (Akkaunt nomi)";
+        if(field === "email") { input.placeholder = "Email manzilingiz"; input.type = "email"; }
+        
+        container.appendChild(input);
+    });
+
+    document.getElementById('pubg-id-modal').style.display = 'flex';
+}
+
+// 2. Modalni yopish
+function closeModal() {
+    document.getElementById('pubg-id-modal').style.display = 'none';
+    currentProduct = null;
+}
+
+// 3. Sotib olishni tasdiqlash va serverga yuborish
+async function confirmOrder() {
+    if (!currentProduct) return;
+    if (userBalance < currentProduct.price) return tg.showAlert("Mablag' yetarli emas!");
+
+    const details = {};
+    let empty = false;
+
+    currentProduct.fields.forEach(field => {
+        const val = document.getElementById(`input-${field}`).value.trim();
+        if (!val) empty = true;
+        details[field] = val;
+    });
+
+    if (empty) return tg.showAlert("Hamma maydonni to'ldiring!");
+
+    const btn = document.getElementById('confirm-order-btn');
+    btn.disabled = true;
+    btn.innerText = "Yuborilmoqda...";
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/order`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                telegram_id: userTelegramId,
+                product_id: currentProduct.id,
+                label: currentProduct.label,
+                price: currentProduct.price,
+                details: details
+            })
+        });
+        const result = await res.json();
+        if (result.success) {
+            tg.showAlert("Buyurtma qabul qilindi!");
+            closeModal();
+            fetchBalance(); 
+        } else {
+            tg.showAlert(result.message);
+        }
+    } catch (e) {
+        tg.showAlert("Xatolik yuz berdi!");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Sotib olish";
+    }
+}
 
 // 5. FETCH DATA
 async function fetchBalance() {
@@ -355,6 +435,7 @@ function copyReferralLink() {
         showToast("Nusxalandi!");
     });
 }
+
 
 
 
