@@ -1,54 +1,33 @@
 :root {
-    /* Ranglar palitrasi: PUBG Sariq & Ko'k */
-    --primary-yellow: #FFD700;
-    --primary-orange: #FFA500;
-    --primary-blue: #0056b3;
-    --dark-blue: #0a192f;
-    --bg-light: #f4f6f8;
-    --bg-dark: #121212;
-    --card-light: #ffffff;
-    --card-dark: #1e1e1e;
-    --text-light: #333;
-    --text-dark: #f1f1f1;
+    /* Ranglar palitrasi */
+    --primary-blue: #2563eb;      /* Ishonchli ko'k */
+    --accent-green: #22c55e;      /* Muvaffaqiyat yashili */
+    --bg-dark: #0f172a;           /* To'q ko'k-kulrang fon */
+    --card-dark: #1e293b;         /* Elementlar foni */
+    --text-main: #f8fafc;         /* Asosiy matn */
+    --text-muted: #94a3b8;        /* Yordamchi matn */
+    --glass: rgba(255, 255, 255, 0.05);
     
-    /* Standart (Light mode default) */
-    --bg-color: var(--bg-light);
-    --card-bg: var(--card-light);
-    --text-color: var(--text-light);
-    --accent: var(--primary-blue);
-    --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%);
-    --shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-color: var(--bg-dark);
-        --card-bg: var(--card-dark);
-        --text-color: var(--text-dark);
-        --shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
+    --grad-blue: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    --grad-green: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background 0.3s, color 0.3s;
-    padding-bottom: 80px; /* Nav uchun joy */
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    padding-bottom: 90px;
     overflow-x: hidden;
 }
 
-/* 1. INTRO ANIMATSIYA */
+/* 1. INTRO LOADER */
 #intro-loader {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
+    inset: 0;
+    background: #020617;
     z-index: 9999;
     display: flex;
     flex-direction: column;
@@ -56,538 +35,208 @@ body {
     align-items: center;
 }
 
-.animation-container {
+.golden-ball {
+    width: 40px;
+    height: 40px;
+    background: var(--grad-blue);
+    border-radius: 12px; /* Kvadratroq zamonaviy shakl */
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.5);
+    animation: rollIn 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+}
+
+/* 2. HEADER & BALANS */
+header.main-header {
+    background: var(--card-dark);
+    padding: 25px 20px;
+    border-bottom: 1px solid var(--glass);
+    border-radius: 0 0 30px 30px;
+    box-shadow: var(--shadow);
+}
+
+.balance-card {
+    background: var(--grad-blue);
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     position: relative;
+    overflow: hidden;
+}
+
+.balance-card::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -20px;
     width: 100px;
     height: 100px;
-}
-
-.golden-ball {
-    width: 30px;
-    height: 30px;
-    background: var(--gold-gradient);
+    background: rgba(255,255,255,0.1);
     border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: -50px; /* Chapdan keladi */
-    box-shadow: 0 0 20px var(--primary-yellow);
-    animation: rollIn 1.5s ease-in forwards, explode 0.5s 1.5s ease-out forwards;
 }
 
-@keyframes rollIn {
-    0% { left: -50px; transform: translateY(-50%) rotate(0deg); }
-    60% { left: 50%; transform: translateY(-50%) translateX(-50%) rotate(720deg); }
-    100% { left: 50%; transform: translateY(-50%) translateX(-50%) rotate(1080deg) scale(1.2); }
-}
+.bal-label { font-size: 13px; opacity: 0.8; display: block; margin-bottom: 5px; }
+#balance-display { font-size: 28px; font-weight: 800; margin: 0; }
 
-@keyframes explode {
-    0% { transform: translateY(-50%) translateX(-50%) scale(1.2); opacity: 1; }
-    50% { transform: translateY(-50%) translateX(-50%) scale(2); opacity: 0.5; }
-    100% { transform: translateY(-50%) translateX(-50%) scale(3); opacity: 0; }
-}
-
-.particle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 6px;
-    height: 6px;
-    background: var(--primary-yellow);
-    border-radius: 50%;
-    opacity: 0;
-}
-
-/* JS dinamik qo'shadi bu classni */
-.particle.active {
-    animation: particleFly 0.8s ease-out forwards;
-}
-
-@keyframes particleFly {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
-}
-
-.loading-text {
-    color: var(--primary-yellow);
-    margin-top: 20px;
-    opacity: 0;
-    animation: fadeIn 0.5s 1s forwards;
-}
-
-@keyframes fadeIn { to { opacity: 1; } }
-
-/* HEADER */
-header {
-    background: var(--primary-blue);
-    padding: 20px;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,86,179,0.3);
-}
-
-.user-balance-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.user-balance-card h2 { margin: 0; font-size: 24px; }
-.add-btn {
-    background: var(--gold-gradient);
+.add-funds-btn {
+    background: white;
+    color: var(--primary-blue);
     border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    border-radius: 15px;
     font-size: 20px;
-    color: #000;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* SECTIONS */
-.hidden-section { display: none; }
-.active-section { display: block; animation: slideUp 0.3s ease-out; }
-
-@keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.section-title {
-    padding: 15px 20px 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* GRID */
+/* 3. MAHSULOTLAR GRIDI */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    padding: 15px;
+    gap: 16px;
+    padding: 20px;
 }
 
 .product-card {
-    background: var(--card-bg);
-    border-radius: 15px;
-    padding: 15px;
+    background: var(--card-dark);
+    border-radius: 24px;
+    padding: 20px;
     text-align: center;
-    box-shadow: var(--shadow);
-    transition: transform 0.2s;
-    border: 1px solid transparent;
+    border: 1px solid var(--glass);
+    transition: all 0.3s ease;
 }
 
-.product-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary-yellow);
-}
+.product-card:active { transform: scale(0.95); }
 
 .uc-icon {
-    font-size: 30px;
-    color: var(--primary-orange);
-    margin-bottom: 10px;
-    text-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+    width: 50px;
+    height: 50px;
+    background: rgba(34, 197, 94, 0.1); /* Yashil tus */
+    color: var(--accent-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 24px;
 }
 
 .price-tag {
+    color: var(--accent-green);
+    font-size: 16px;
+    font-weight: 700;
+    margin: 10px 0;
     display: block;
-    margin-top: 10px;
-    font-weight: bold;
-    color: var(--primary-blue);
 }
 
 .buy-btn {
-    margin-top: 10px;
+    background: var(--glass);
+    color: var(--text-main);
+    border: 1px solid rgba(255,255,255,0.1);
     width: 100%;
-    padding: 8px;
-    background: var(--primary-blue);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-/* PROFILE */
-.profile-card {
-    margin: 20px;
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    text-align: center;
-}
-
-.profile-header img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid var(--primary-yellow);
-    margin-bottom: 10px;
-}
-
-.user-id-badge {
-    background: rgba(0, 86, 179, 0.1);
-    color: var(--primary-blue);
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-}
-
-.security-note {
-    background: rgba(0, 255, 0, 0.05);
-    color: #2e7d32;
     padding: 10px;
-    border-radius: 10px;
-    margin-top: 20px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-align: left;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.3s;
 }
 
-/* BOTTOM NAV */
+.buy-btn:hover { background: var(--grad-blue); border-color: transparent; }
+
+/* 4. BOTTOM NAV (Shishasimon effekt - Glassmorphism) */
 .bottom-nav {
     position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: var(--card-bg);
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(12px);
     display: flex;
     justify-content: space-around;
-    padding: 15px 0;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-    z-index: 100;
+    padding: 15px;
+    border-radius: 25px;
+    border: 1px solid var(--glass);
+    box-shadow: var(--shadow);
 }
 
 .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #888;
-    font-size: 12px;
-    cursor: pointer;
-    position: relative;
+    color: var(--text-muted);
+    transition: 0.3s;
 }
 
-.nav-item i { font-size: 20px; margin-bottom: 5px; }
-.nav-item.active { color: var(--primary-blue); }
+.nav-item.active { color: var(--primary-blue); transform: translateY(-5px); }
+.nav-item.active i { filter: drop-shadow(0 0 8px var(--primary-blue)); }
 
-.badge {
-    position: absolute;
-    top: -5px;
-    right: 5px;
-    background: red;
-    color: white;
-    border-radius: 50%;
-    width: 15px;
-    height: 15px;
-    font-size: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.badge.hidden { display: none; }
-
-/* MODALS */
-.modal {
-    display: none;
+/* 5. MODAL (Bottom Sheet uslubida) */
+.modal-content.bottom-sheet {
     position: fixed;
-    top: 0;
-    left: 0;
+    bottom: 0;
     width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
+    max-width: none;
+    border-radius: 30px 30px 0 0;
+    background: var(--bg-dark);
+    border-top: 2px solid var(--primary-blue);
+    padding: 30px 20px;
+    animation: sheetUp 0.4s ease-out;
 }
 
-.modal-content {
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: 20px;
-    width: 80%;
-    text-align: center;
-    position: relative;
-    border: 1px solid var(--primary-yellow);
+@keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
 }
 
-.close-modal {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-input {
-    width: 90%;
-    padding: 12px;
-    margin: 15px 0;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    background: var(--bg-color);
-    color: var(--text-color);
-}
-
-.primary-btn {
-    background: var(--gold-gradient);
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    font-weight: bold;
-    color: #000;
-    cursor: pointer;
-    width: 100%;
-}
-.cards-container {
-    background: rgba(0, 86, 179, 0.05);
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    text-align: left;
-}
-.card-item {
-    padding: 8px;
-    border-bottom: 1px dashed #ccc;
-    cursor: pointer;
-}
-.card-item:last-child { border: none; }
-.card-item b { color: var(--primary-blue); font-family: monospace; }
-.small-hint { font-size: 12px; color: #666; margin: 10px 0; }
-.file-label {
-    display: block;
-    background: #eee;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 5px;
-    border: 1px dashed var(--primary-blue);
-}
-
-.file-hint { font-size: 11px; color: #888; margin-bottom: 15px; }
-
-/* Savat bo'limi uchun umumiy stil */
-#section-cart {
-    background-color: #000000;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    max-width: 600px;
-    margin: 20px auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Sarlavha qismi */
-.section-title {
+.p-card {
+    background: var(--card-dark);
+    margin-bottom: 12px;
+    padding: 15px;
+    border-radius: 16px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #f0f2f5;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-.section-title h3 {
-    margin: 0;
-    color: #1a73e8; /* Ko'k rang */
-    font-size: 1.5rem;
-}
-
-/* Tozalash tugmasi */
-.clear-cart {
-    background-color: transparent;
-    color: #dc3545; /* O'chirish uchun qizilroq rang */
-    border: 1px solid #dc3545;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
-
-.clear-cart:hover {
-    background-color: #dc3545;
-    color: white;
-}
-
-/* Savat ichidagi mahsulotlar ro'yxati */
-#cart-items {
-    min-height: 100px;
-    margin-bottom: 20px;
-}
-
-.empty-state {
-    text-align: center;
-    color: #888;
-    padding: 30px 0;
-    font-style: italic;
-}
-
-/* Savat pastki qismi (footer) */
-.cart-footer {
-    border-top: 2px solid #f0f2f5;
-    padding-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
     gap: 15px;
+    border: 1px solid var(--glass);
 }
 
-.total-price {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #333;
+.p-card i { color: var(--text-muted); margin-left: auto; }
+
+/* 6. INPUTLAR VA TUGMALAR */
+input, .dynamic-input {
+    background: var(--card-dark) !important;
+    border: 1px solid var(--glass) !important;
+    color: white !important;
+    padding: 14px !important;
+    border-radius: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box;
 }
 
-#cart-total {
-    color: #1a73e8; /* Jami summa ko'k rangda */
-}
-
-/* Sotib olish tugmasi */
-#checkout-btn {
-    background-color: #1a73e8; /* Asosiy ko'k */
+.submit-btn, .buy-now-btn {
+    background: var(--grad-green);
     color: white;
     border: none;
-    padding: 12px 25px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%; /* Mobil uchun qulay */
-    transition: background-color 0.3s transform 0.2s;
-    box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);
-}
-
-#checkout-btn:hover {
-    background-color: #1557b0;
-    transform: translateY(-2px);
-}
-
-#checkout-btn:active {
-    transform: translateY(0);
-}
-
-/* Savatga mahsulot qo'shilgandagi elementlar uchun (agar dinamik qo'shsangiz) */
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-/* REFERAL BO'LIMI */
-.referral-container {
-    margin: 20px;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    border-radius: 15px;
-    padding: 20px;
-    border: 1px solid var(--primary-yellow);
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
-    color: white;
-}
-
-.referral-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--primary-yellow);
-}
-
-.referral-desc {
-    font-size: 13px;
-    color: #ccc;
-    margin-bottom: 15px;
-}
-
-.ref-link-box {
-    display: flex;
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 5px;
-    border-radius: 10px;
-}
-
-.ref-link-box input {
+    padding: 16px;
+    border-radius: 16px;
+    font-weight: 700;
     width: 100%;
-    background: transparent;
-    border: none;
-    color: var(--primary-yellow);
-    font-family: monospace;
-    font-size: 14px;
-    margin: 0;
-    padding: 8px;
+    margin-top: 15px;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
 }
 
-.ref-link-box input:focus {
-    outline: none;
-}
-
-.copy-btn {
-    background: var(--primary-yellow);
-    border: none;
-    width: 40px;
-    border-radius: 8px;
-    cursor: pointer;
-    color: black;
-    transition: transform 0.2s;
-}
-
-.copy-btn:active {
-    transform: scale(0.9);
-}
-.dynamic-input {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
-    border: 1px solid #444;
-    background: #2a2a2a;
-    color: white;
-    font-size: 16px;
-}
-
-/* Modaldagi tugmalar konteyneri */
-.modal-buttons {
-    display: flex;
-    flex-direction: column; /* Tugmalarni ustma-ust qo'yamiz, shunda bosish oson bo'ladi */
-    gap: 12px;
-    margin-top: 20px;
-}
-
-/* Umumiy tugma stili */
-.modal-buttons button {
-    padding: 15px 20px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.1s ease, filter 0.2s ease;
-    width: 100%; /* To'liq kenglik */
-}
-
-/* Sotib olish (Tasdiqlash) tugmasi */
-#confirm-order-btn {
-    background: var(--gold-gradient);
-    color: #000;
-}
-
-/* Bekor qilish tugmasi - endi kattaroq va sezilishi oson */
 .cancel-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-color);
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
 }
 
-/* Bosganda effekt */
-.modal-buttons button:active {
-    transform: scale(0.96);
-    filter: brightness(0.9);
+/* REFERAL CARD */
+.referral-promo {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    padding: 20px;
+    border-radius: 20px;
+    margin: 20px;
 }
 
+.icon-gold { color: #fbbf24; font-size: 24px; }
