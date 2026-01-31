@@ -10,7 +10,20 @@ document.documentElement.style.setProperty('--tg-theme-bg', tg.themeParams.bg_co
 // 2. CONFIG
 // MUHIM: Bu yerga Renderdagi URLingizni yozing (oxirida / yo'q)
 const API_BASE_URL = window.location.origin; // Agar index.php bilan bir joyda tursa
-const BOT_USERNAME = "TurboHamyonBot"; // O'Z BOTINGIZ USERNAME SINI YOZING (@ siz)
+// 1. TELEGRAM WEBAPP INIT
+const tg = window.Telegram.WebApp;
+tg.expand(); // To'liq ekran qilish
+
+// --- MUHIM O'ZGARUVCHILAR ---
+// 1. User ID sini olamiz (Referal uchun kerak)
+const userTelegramId = tg.initDataUnsafe?.user?.id; 
+
+// 2. Botingiz usernameni shu yerga yozing (Boshida @ belgisiz)
+// Masalan: "TurboHamyon_bot"
+const BOT_USERNAME = "TurboHamyonBot"; 
+
+// 3. API URL (Renderdagi manzilingiz)
+const API_BASE_URL = window.location.origin;
 
 // UC Paketlari (Backenddan ham olish mumkin, hozircha static)
 const products = [
@@ -87,13 +100,25 @@ function initApp() {
         userTelegramId = "123456789"; // Fake ID
         document.getElementById('user-name').innerText = "Test User";
     }
-// Referal linkni generatsiya qilish
-    if (userTelegramId) {
+
+   // --- REFERAL LINK GENERATSIYASI (To'g'ri joy) ---
+    if (userTelegramId && BOT_USERNAME) {
+        // Havola: https://t.me/BotUser?start=12345
         const refLink = `https://t.me/${BOT_USERNAME}?start=${userTelegramId}`;
+        
+        // HTML dagi inputni topib, unga yozamiz
         const inputEl = document.getElementById('my-ref-link');
-        if(inputEl) inputEl.value = refLink;
+        if (inputEl) {
+            inputEl.value = refLink;
+        }
+    } else {
+        console.error("User ID yoki Bot Username topilmadi!");
     }
-    renderShop();
+
+    // ...
+    renderShop(); // Do'konni yuklash
+    // ...
+}
 }
 
 // 5. FETCH DATA
@@ -388,6 +413,7 @@ function copyReferralLink() {
         showToast("Nusxalandi!");
     });
 }
+
 
 
 
