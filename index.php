@@ -181,7 +181,10 @@ function handleTelegramUpdate() {
             $keyboard = [
                 'inline_keyboard' => [
                     [
-                        ['text' => "PUBG UC Do'koni 🛒", 'web_app' => ['url' => WEBAPP_URL]]
+                        ['text' => "Do'kon 🛒", 'web_app' => ['url' => WEBAPP_URL]]
+                    ],
+                    [
+                        ['text' => "Kanal 🔔", 'url' => 'https://t.me/TurboHamyon']
                     ],
                     [
                         ['text' => "Admin Aloqa 👨💻", 'url' => 'https://t.me/SultanovSardorbekSheraliyevich']
@@ -194,7 +197,7 @@ function handleTelegramUpdate() {
                 $keyboard['inline_keyboard'][] = [['text' => "Admin Panel ⚙️", 'callback_data' => 'admin_panel']];
             }
 
-            sendMessage($chat_id, "Assalomu alaykum, $first_name! \n\nPUBG Mobile UC xizmatiga xush kelibsiz. Quyidagi tugma orqali do'konga kiring:", $keyboard);
+            sendMessage($chat_id, "$first_name! \n\n Do'konga kiring:", $keyboard);
         }
         // --- ADMIN PANEL BOSHLANDI ---
         if ($chat_id == ADMIN_ID) {
@@ -367,14 +370,14 @@ function handleBuyUC($data) {
     $order_id = $pdo->lastInsertId();
 
     // Userga xabar
-    sendMessage($user_id, "⏳ Buyurtma qabul qilindi!\n🆔 PUBG ID: $pubg_id\n💎 UC/PP: $uc_amount\nHolat: Kutilmoqda...");
+    sendMessage($user_id, "⏳ Buyurtma qabul qilindi!\n🆔 ID: $pubg_id\n💎 Paket miqdori: $uc_amount\nHolat: Kutilmoqda...");
 
     // Adminga xabar
-    $msg = "🛒 <b>Yangi UC Buyurtmasi!</b>\n\n";
+    $msg = "🛒 <b>Yangi Buyurtma</b>\n\n";
     $msg .= "🆔 Order ID: #$order_id\n";
     $msg .= "👤 User: <code>$user_id</code>\n";
-    $msg .= "🎮 PUBG ID: <code>$pubg_id</code>\n";
-    $msg .= "💎 UC: <b>$uc_amount</b>\n";
+    $msg .= "🎮 ID: <code>$pubg_id</code>\n";
+    $msg .= "💎 Paket miqdori: <b>$uc_amount</b>\n";
     $msg .= "💰 Narx: $price UZS";
 
     $keyboard = [
