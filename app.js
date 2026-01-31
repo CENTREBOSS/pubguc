@@ -227,7 +227,7 @@ function closePubgModal() {
 
 async function processPayment() {
     const pubgId = document.getElementById('pubg-game-id').value;
-    if (!pubgId) return showToast("PUBG ID kiritilmadi!");
+    if (!pubgId) return showToast("ID kiritilmadi!");
 
     // Buttonni bloklash
     const btn = document.querySelector('#pubg-id-modal button');
@@ -365,6 +365,7 @@ async function requestTopup() {
     }
 
 }
+
 
 
 
