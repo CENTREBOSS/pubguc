@@ -10,6 +10,7 @@ document.documentElement.style.setProperty('--tg-theme-bg', tg.themeParams.bg_co
 // 2. CONFIG
 // MUHIM: Bu yerga Renderdagi URLingizni yozing (oxirida / yo'q)
 const API_BASE_URL = window.location.origin; // Agar index.php bilan bir joyda tursa
+const BOT_USERNAME = "TurboHamyonBot"; // O'Z BOTINGIZ USERNAME SINI YOZING (@ siz)
 
 // UC Paketlari (Backenddan ham olish mumkin, hozircha static)
 const products = [
@@ -86,7 +87,12 @@ function initApp() {
         userTelegramId = "123456789"; // Fake ID
         document.getElementById('user-name').innerText = "Test User";
     }
-
+// Referal linkni generatsiya qilish
+    if (userTelegramId) {
+        const refLink = `https://t.me/${BOT_USERNAME}?start=${userTelegramId}`;
+        const inputEl = document.getElementById('my-ref-link');
+        if(inputEl) inputEl.value = refLink;
+    }
     renderShop();
 }
 
@@ -365,6 +371,24 @@ async function requestTopup() {
     }
 
 }
+
+function copyReferralLink() {
+    const copyText = document.getElementById("my-ref-link");
+    
+    // Matnni tanlash va nusxalash
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // Mobil qurilmalar uchun
+    
+    navigator.clipboard.writeText(copyText.value).then(() => {
+        // Muvaffaqiyatli
+        tg.showScanQrPopup({ text: "Havola nusxalandi!" });
+        setTimeout(() => tg.closeScanQrPopup(), 800);
+    }).catch(err => {
+        // Agar xatolik bo'lsa
+        showToast("Nusxalandi!");
+    });
+}
+
 
 
 
