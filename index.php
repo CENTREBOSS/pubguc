@@ -40,16 +40,25 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // Jadvallarni yaratish (agar mavjud bo'lmasa)
+ // Jadvallarni yaratish (agar mavjud bo'lmasa)
    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
         telegram_id TEXT UNIQUE,
         first_name TEXT,
         username TEXT,
         balance REAL DEFAULT 0,
-        is_blocked INTEGER DEFAULT 0, -- 0-aktiv, 1-bloklangan
+        is_blocked INTEGER DEFAULT 0, 
         block_reason TEXT,
+        inviter_id TEXT DEFAULT NULL, -- Yangi ustun: kim taklif qilgani
         joined_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    
+    // ESKI USERLAR UCHUN: Agar jadval oldin bor bo'lsa, xatolik bermasligi uchun try-catch
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN inviter_id TEXT DEFAULT NULL");
+    } catch (Exception $e) { 
+        // Agar ustun allaqachon bor bo'lsa, shunchaki o'tib ketadi
+    }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -147,7 +156,46 @@ function handleTelegramUpdate() {
         return; // Kod shu yerda to'xtaydi
     }
 
-       // ---------------- YANGI KOD BOSHLANDI ----------------
+     // ---------------- YANGI REFERAL TIZIMI BOSHLANDI ----------------
+        
+        // 1. Referal ID ni aniqlash (start payload)
+        // Misol: /start 123456 (123456 - taklif qiluvchi IDsi)
+        $parts = explode(' ', $text);
+        $inviter_id = (isset($parts[1]) && is_numeric($parts[1]) && $parts[1] != $chat_id) ? $parts[1] : null;
+
+        // 2. User bazada borligini tekshirish
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE telegram_id = ?");
+        $stmt->execute([$chat_id]);
+        $user_exists = $stmt->fetch();
+
+        if (!$user_exists) {
+            // YANGI USER!
+            // Bazaga yozamiz
+            $insert = $pdo->prepare("INSERT INTO users (telegram_id, first_name, username, inviter_id) VALUES (?, ?, ?, ?)");
+            $insert->execute([$chat_id, $first_name, $username, $inviter_id]);
+
+            // Referal uchun bonus berish (Agar taklif qiluvchi bo'lsa)
+            if ($inviter_id) {
+                // Taklif qiluvchining o'zi bazada bormi?
+                $check_inviter = $pdo->prepare("SELECT id FROM users WHERE telegram_id = ?");
+                $check_inviter->execute([$inviter_id]);
+                
+                if ($check_inviter->fetch()) {
+                    $bonus = 200; // Bonus summasi
+                    $pdo->prepare("UPDATE users SET balance = balance + ? WHERE telegram_id = ?")->execute([$bonus, $inviter_id]);
+                    
+                    // Taklif qiluvchiga xabar
+                    sendMessage($inviter_id, "👏 <b>Tabriklaymiz!</b> Sizning havolangiz orqali yangi do'stingiz ($first_name) qo'shildi.\n💰 Hisobingizga <b>$bonus UZS</b> qo'shildi.");
+                }
+            }
+
+            // Adminga xabar (Statistika bilan)
+            $count = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+            $msg = "👋 <b>Yangi User!</b>\n👤 <a href='tg://user?id=$chat_id'>$first_name</a>\n🆔 <code>$chat_id</code>\n📊 Jami: $count";
+            sendMessage(ADMIN_ID, $msg);
+        }
+        
+        // ---------------- REFERAL TIZIMI TUGADI ----------------
         
         // Userni bazaga saqlash
         $stmt = $pdo->prepare("INSERT OR IGNORE INTO users (telegram_id, first_name, username) VALUES (?, ?, ?)");
